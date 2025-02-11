@@ -4,6 +4,11 @@
 
 Baixa Videos 3000 é um programa simples e eficiente para baixar vídeos de diversas plataformas, permitindo escolher a qualidade e o formato desejado. Com uma interface simples, ele facilita o processo de download com um design intuitivo e elegante.
 
+## Bugs e Erros Conhecidos que serão corrigidos em próxima atualização
+- Se for baixar vídeos do twitter ou instagram deixe a opção de qualidade em "Melhor Qualidade" ao invés de selecionar qualquer outra opção. Caso contrário dará erro.
+- Se for baixar um reels do instagram o link precisa ser parecido com esse "https://www.instagram.com/reel/DF1ynXEuWlb/". Corrigirei isso no futuro.
+- Caso esteja enfrentando muitos bugs e não tenha paciência para esperar atualizações, use o [Cobalt Tools](https://cobalt.tools/) para baixar o que você precisar sem erros.
+  
 ## 🎯 Funcionalidades
 - 📥 Baixa vídeos de YouTube, X/Twitter, Twitch, Instagram e outras plataformas.
 - 🎥 Suporte a múltiplas resoluções: 360p, 720p, 1080p, 4K.
