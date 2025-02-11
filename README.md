@@ -2,7 +2,7 @@
 
 ![Baixa Videos 3000](https://genios.cc/logoReginaldo/reginaldohorse.gif)
 
-Baixa Videos 3000 é um programa simples e eficiente para baixar vídeos de diversas plataformas, permitindo escolher a qualidade e o formato desejado. Com uma interface moderna e dark, ele facilita o processo de download com um design intuitivo e elegante.
+Baixa Videos 3000 é um programa simples e eficiente para baixar vídeos de diversas plataformas, permitindo escolher a qualidade e o formato desejado. Com uma interface simples, ele facilita o processo de download com um design intuitivo e elegante.
 
 ## 🎯 Funcionalidades
 - 📥 Baixa vídeos de YouTube, X/Twitter, Twitch, Instagram e outras plataformas.
