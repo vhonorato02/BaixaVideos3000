@@ -11,7 +11,7 @@ Baixa Videos 3000 é um programa simples e eficiente para baixar vídeos de dive
 - O arquivo após baixado pode levar até 5 segundos até o arquivo realmente aparecer na pasta, não é bem um erro mas podemos melhorar isso no futuro;
 - A velocidade de download de vídeos da twitch acima de 30 minutos é bem lenta e é uma limitação da twitch que precisarei estudar formas de contornar isso;
 
-  Todos esses erros e bugs foram relatados para mim por pessoas que estão testando essa versão alpha 0.0.1, obrigado pelas contribuições e feedbacks. Eu gostaria de melhorar essa ferramenta pois é uma das ferramentas que eu mais uso no dia a dia como um editor de vídeos e podcasts. Espero construir a melhor ferramenta de download de mídias para editores até ano que vem. Caso tenha alguma sugestão de melhoria ou de acrescentar novas funcionalidades interessantes para editores é só falar.
+  Todos esses erros e bugs foram relatados para mim por pessoas que estão testando essa versão alpha 0.0.1, obrigado pelas contribuições e feedbacks. Eu gostaria de melhorar essa ferramenta pois é uma das que eu mais uso no dia a dia como um editor de vídeos e podcasts. Espero construir a melhor ferramenta de download de mídias para editores até ano que vem com mais funções de conversão de formatos até de imagens. Caso tenha alguma sugestão de melhoria ou de acrescentar novas funcionalidades interessantes para editores é só falar.
   
 ## 🎯 Funcionalidades
 - 📥 Baixa vídeos de YouTube, X/Twitter, Twitch, Instagram e outras plataformas.
