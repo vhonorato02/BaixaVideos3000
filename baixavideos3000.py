@@ -193,8 +193,9 @@ class ConfigDialog(QDialog):
 class DownloadApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Baixa Vídeos 3000")
-        self.resize(1100, 850)
+        self.setWindowTitle("Baixa Videos 3000 by Reginaldo Horse")
+        self.resize(800, 600)
+        self.setWindowIcon(QIcon('ico.ico'))
         self.setFont(QFont("Segoe UI", 10))
         self.download_folder = self.load_config()
         self.current_theme = "Escuro"  # Tema padrão
@@ -524,7 +525,7 @@ class DownloadApp(QMainWindow):
         progress_bar.setRange(0, 100)
         progress_bar.setValue(0)
         progress_bar.setFormat("%p%")
-        progress_bar.setStyleSheet("QProgressBar::chunk { background-color: #E53935; }")
+        progress_bar.setStyleSheet("QProgressBar::chunk { background-color: #41e535; }")
         self.table.setCellWidget(row, 3, progress_bar)
         self.table.setItem(row, 4, QTableWidgetItem(item.status))
         self.table.setItem(row, 5, QTableWidgetItem(item.added_at))
