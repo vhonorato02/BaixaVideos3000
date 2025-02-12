@@ -4,6 +4,35 @@
 
 Baixa Videos 3000 é um programa simples e eficiente para baixar vídeos de diversas plataformas, permitindo escolher a qualidade e o formato desejado. Com uma interface simples, ele facilita o processo de download com um design intuitivo e elegante.
 
+## 👥 Colaboradores
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/ReginaldoHorse">
+        <img src="https://avatars.githubusercontent.com/u/60680168?v=4" width="60px;" alt="ReginaldoHorse"/>
+        <br />
+        <sub><b>ReginaldoHorse</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/vhonorato02">
+        <img src="https://avatars.githubusercontent.com/u/33707633?v=4" width="60px;" alt="vhonorato02"/>
+        <br />
+        <sub><b>vhonorato02</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/bernaction">
+        <img src="https://avatars.githubusercontent.com/u/5149392?v=4" width="60px;" alt="bernaction"/>
+        <br />
+        <sub><b>bernaction</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+
 ## Bugs e Erros Conhecidos que serão corrigidos em próxima atualização
 -Caso esteja enfrentando um bug com FFMPEG, desinstale a versão 0.0.1 e instale a nova versão.
 - Caso esteja enfrentando muitos bugs e não tenha paciência para esperar atualizações, use o baixador de vídeos online e sem anúncios [Cobalt Tools](https://cobalt.tools/) para baixar o que você precisar sem erros e peço desculpas pelo incoveniente;
