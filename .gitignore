@@ -169,3 +169,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Arquivo de logs do usuário e downloads
+downloader_config.json
+temp_downloads/
+
