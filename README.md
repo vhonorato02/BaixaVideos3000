@@ -5,13 +5,8 @@
 Baixa Videos 3000 é um programa simples e eficiente para baixar vídeos de diversas plataformas, permitindo escolher a qualidade e o formato desejado. Com uma interface simples, ele facilita o processo de download com um design intuitivo e elegante.
 
 ## Bugs e Erros Conhecidos que serão corrigidos em próxima atualização
-- Se for baixar vídeos do twitter ou instagram deixe a opção de qualidade em "Melhor Qualidade" ao invés de selecionar qualquer outra opção. Caso contrário dará erro;
-- Se for baixar um reels do instagram o link precisa ser parecido com esse https://www.instagram.com/reel/DF1ynXEuWlb/ . Corrigirei isso no futuro;
 - Caso esteja enfrentando muitos bugs e não tenha paciência para esperar atualizações, use o baixador de vídeos online e sem anúncios [Cobalt Tools](https://cobalt.tools/) para baixar o que você precisar sem erros e peço desculpas pelo incoveniente;
-- O arquivo após baixado pode levar até 5 segundos para realmente aparecer na pasta, não é bem um erro mas podemos melhorar isso no futuro;
-- A velocidade de download de vídeos da twitch acima de 30 minutos é bem lenta e é uma limitação da twitch que precisarei estudar formas de contornar isso;
-- Ao colocar mais de um download ao mesmo tempo a porcentagem pode bugar, ele continuará baixando o vídeo que estava processando anteriormente mas mostrará a porcentagem no vídeo que foi adicionado recentemente a fila. Não se preocupe, apesar de aparecer uma porcentagem, verifique se o vídeo foi marcado como "Concluído", se foi, então ele estará baixado na pasta, se não foi, basta aguardar que será baixado; (esse erro será resolvido com downloads paralelos, na versão 0.0.2 será possível fazer o download de videos e áudios ao mesmo tempo e não em sequência e downloads de arquivos menores serão priorizados deixando o download mais rápido e sem "empacar")
-- Caso você tente baixar uma live do youtube que não foi finalizada ou que foi finalizada faz pouco tempo, provavelmente vai dar erro pois o youtube precisa processar a live antes de ser possível baixá-la.
+-Caminho da pasta é do usuário "Lucca" como padrão; Pois é, eu esqueci de mudar isso, mas estou sem tempo de alterar, compilar e criar o instalador hoje. Mas será corrigido amanhã!
 
   Todos esses erros e bugs foram relatados para mim por pessoas que estão testando essa versão alpha 0.0.1, obrigado pelas contribuições e feedbacks. Eu gostaria de melhorar essa ferramenta pois é uma das que eu mais uso no dia a dia como um editor de vídeos e podcasts. Espero construir a melhor ferramenta de download de mídias para editores até ano que vem com mais funções de conversão de formatos até de imagens. Caso tenha alguma sugestão de melhoria ou de acrescentar novas funcionalidades interessantes para editores, é só falar.
   
