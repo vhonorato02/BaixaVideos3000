@@ -29,6 +29,13 @@ Baixa Videos 3000 é um programa simples e eficiente para baixar vídeos de dive
         <sub><b>bernaction</b></sub>
       </a>
     </td>
+    <td align="center">
+      <a href="https://github.com/ZhangJunZ84">
+        <img src="https://avatars.githubusercontent.com/u/199004992?v=4" width="60px;" alt="bernaction"/>
+        <br />
+        <sub><b>ZhangJunZ84</b></sub>
+      </a>
+    </td>
   </tr>
 </table>
 
