@@ -43,7 +43,6 @@ Baixa Videos 3000 é um programa simples e eficiente para baixar vídeos de dive
 ## Bugs e Erros Conhecidos que serão corrigidos em próxima atualização
 -Caso esteja enfrentando um bug com FFMPEG, desinstale a versão 0.0.1 e instale a nova versão.
 - Caso esteja enfrentando muitos bugs e não tenha paciência para esperar atualizações, use o baixador de vídeos online e sem anúncios [Cobalt Tools](https://cobalt.tools/) para baixar o que você precisar sem erros e peço desculpas pelo incoveniente;
--Caminho da pasta é do usuário "Lucca" como padrão; Pois é, eu esqueci de mudar isso, mas estou sem tempo de alterar, compilar e criar o instalador hoje. Mas será corrigido amanhã!
 
   Todos esses erros e bugs foram relatados para mim por pessoas que estão testando essa versão alpha 0.0.1, obrigado pelas contribuições e feedbacks. Eu gostaria de melhorar essa ferramenta pois é uma das que eu mais uso no dia a dia como um editor de vídeos e podcasts. Espero construir a melhor ferramenta de download de mídias para editores até ano que vem com mais funções de conversão de formatos até de imagens. Caso tenha alguma sugestão de melhoria ou de acrescentar novas funcionalidades interessantes para editores, é só falar.
   
