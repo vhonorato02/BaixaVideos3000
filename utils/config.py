@@ -21,6 +21,10 @@ class Config:
     def __init__(self, config_file="downloader_config.json"):
         self.config_file = config_file
         self.config = self.load()
+        # Define a pasta padrão de download como a pasta "Downloads" do usuário se não estiver definida
+        if "download_folder" not in self.config:
+            self.config["download_folder"] = os.path.join(os.path.expanduser("~"), "Downloads")
+            self.save()
 
     def load(self) -> dict:
         if os.path.exists(self.config_file):
@@ -82,6 +86,12 @@ class Config:
     def language(self, value: str):
         self.set("language", value)
 
+    def __setitem__(self, key: str, value: Any):
+        self.config[key] = value
+
+    def __getitem__(self, key: str) -> Any:
+        return self.config.get(key)
+
 # Versão atual do aplicativo
 CURRENT_VERSION = "0.0.3"
 
@@ -97,4 +107,4 @@ CURRENT_VERSION = "0.0.3"
 #                                         f"Uma nova versão ({latest_version}) está disponível no GitHub.\n"
 #                                         "Acesse https://github.com/ReginaldoHorse/BaixaVideos3000/ para atualizar.")
 #     except Exception as e:
-#         logging.error("Erro ao buscar atualizações: " + str(e)) 
+#         logging.error("Erro ao buscar atualizações: " + str(e))

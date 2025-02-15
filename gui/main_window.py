@@ -1,9 +1,11 @@
 import os
 import logging
+import time
+from collections import deque
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
                             QTabWidget, QLineEdit, QRadioButton, QButtonGroup, QPushButton,
                             QComboBox, QLabel, QTableWidget, QTableWidgetItem, QTextEdit,
-                            QMessageBox, QHeaderView, QProgressBar, QDialog, QFileDialog)
+                            QMessageBox, QHeaderView, QProgressBar, QDialog, QFileDialog, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QFont, QIcon
 
@@ -16,6 +18,10 @@ from models.history import DownloadHistory
 from utils.config import Config
 from utils.dependencies import FFmpegInstaller, check_ffmpeg
 from utils.i18n import I18n
+from gui.playlist_dialog import PlaylistDialog
+from gui.playlist_progress_dialog import PlaylistProgressDialog
+
+from yt_dlp import YoutubeDL  # Adicionada a importação de YoutubeDL
 
 class FFmpegInstallDialog(QDialog):
     def __init__(self, i18n, parent=None):
@@ -61,7 +67,7 @@ class DownloadApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.config = Config()
-        self.i18n = I18n(self.config.language)
+        self.i18n = I18n(self.config.get("language", "pt_BR"))
         self.history = DownloadHistory()
         
         self.setWindowTitle(self.i18n.get("app_title"))
@@ -73,6 +79,9 @@ class DownloadApp(QMainWindow):
             os.makedirs("temp_downloads")
         self.downloads = {}   # {id: DownloadItem}
         self.threads = {}     # {id: DownloadThread}
+        self.download_queue = deque()  # Fila para gerenciar os downloads
+        self.current_item = 0  # Inicializa a variável current_item
+        self.current_batch = 0  # Inicializa a variável current_batch
         
         self.init_ui()
         self.setup_logging()
@@ -196,7 +205,7 @@ class DownloadApp(QMainWindow):
         layout = QFormLayout()
         
         # Pasta de Download
-        self.folder_edit = QLineEdit(self.config.download_path)
+        self.folder_edit = QLineEdit(self.config.get("download_folder", ""))
         self.folder_edit.setReadOnly(True)
         self.btn_change_folder = QPushButton(self.i18n.get("change_folder"))
         self.btn_change_folder.clicked.connect(self.change_folder)
@@ -211,7 +220,7 @@ class DownloadApp(QMainWindow):
         light_text = self.i18n.get("light")
         self.theme_combo.addItems([dark_text, light_text])
         # Define o tema atual
-        if self.config.theme == "Escuro":
+        if self.config.get("theme", "Escuro") == "Escuro":
             self.theme_combo.setCurrentText(dark_text)
         else:
             self.theme_combo.setCurrentText(light_text)
@@ -223,11 +232,16 @@ class DownloadApp(QMainWindow):
         for code, name in self.i18n.available_languages.items():
             self.language_combo.addItem(name, code)
         # Define o idioma atual
-        index = self.language_combo.findData(self.config.language)
+        index = self.language_combo.findData(self.config.get("language", "pt_BR"))
         if index >= 0:
             self.language_combo.setCurrentIndex(index)
         self.language_label = QLabel(self.i18n.get("language"))
         layout.addRow(self.language_label, self.language_combo)
+        
+        # Mostrar mensagem de conclusão
+        self.show_completion_message_checkbox = QCheckBox(self.i18n.get("show_completion_message"))
+        self.show_completion_message_checkbox.setChecked(self.config.get("show_completion_message", True))
+        layout.addRow(self.show_completion_message_checkbox)
         
         # Botão Aplicar
         self.btn_apply = QPushButton(self.i18n.get("apply_settings"))
@@ -263,19 +277,25 @@ class DownloadApp(QMainWindow):
 
     def apply_config(self):
         # Salva o caminho de download
-        self.config.download_path = self.folder_edit.text()
+        self.config["download_folder"] = self.folder_edit.text()
         
         # Atualiza o idioma primeiro
         new_language = self.language_combo.currentData()
-        if new_language != self.config.language:
-            self.config.language = new_language
+        if new_language != self.config.get("language"):
+            self.config["language"] = new_language
             self.i18n.set_language(new_language)
             self.retranslate_ui()
         
         # Atualiza o tema
         theme_text = self.theme_combo.currentText()
-        self.config.theme = "Escuro" if theme_text == self.i18n.get("dark") else "Claro"
+        self.config["theme"] = "Escuro" if theme_text == self.i18n.get("dark") else "Claro"
         self.apply_theme()
+        
+        # Atualiza a configuração de mostrar mensagem de conclusão
+        self.config["show_completion_message"] = self.show_completion_message_checkbox.isChecked()
+        
+        # Salva as configurações
+        self.config.save()
         
         # Mostra mensagem de confirmação no idioma atualizado
         QMessageBox.information(
@@ -412,12 +432,18 @@ class DownloadApp(QMainWindow):
         if not url:
             QMessageBox.warning(self, self.i18n.get("warning"), self.i18n.get("error_no_url"))
             return
+
+        if "&list=" in url:
+            self.handle_playlist(url)
+            return
+
         fmt = "Vídeo - MP4" if self.radio_mp4.isChecked() else "Música - MP3"
         resolution = self.resolution_combo.currentText()
         if "instagram.com" in url.lower() and "/p/" in url.lower() and "/reel/" not in url.lower():
             url = url.replace("/p/", "/reel/")
             logging.info("Link de Instagram convertido para Reels.")
         item = DownloadItem(url, fmt, resolution)
+        item.set_file_path(self.config.get("download_folder", ""), item.title)
         self.downloads[item.id] = item
 
         row = self.table.rowCount()
@@ -447,6 +473,114 @@ class DownloadApp(QMainWindow):
 
         self.url_edit.clear()
         logging.info(f"Download adicionado: {url}")
+
+    def handle_playlist(self, url):
+        ydl_opts = {
+            'quiet': True,
+            'extract_flat': 'in_playlist',
+            'skip_download': True,
+        }
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            if 'entries' in info:
+                videos = [{'title': entry['title'], 'url': entry['url']} for entry in info['entries']]
+                dialog = PlaylistDialog(self.i18n, videos, self)
+                if dialog.exec_() == QDialog.Accepted:
+                    # Downloads serão iniciados a partir do dialog
+                    pass
+            else:
+                QMessageBox.warning(self, self.i18n.get("warning"), self.i18n.get("error_no_playlist_entries"))
+
+    def start_playlist_download(self, videos, audio_only, download_video):
+        self.playlist_videos = videos
+        self.audio_only = audio_only
+        self.download_video = download_video
+        self.current_batch = 0
+        self.current_item = 0
+        self.skipped_items = 0
+
+        self.download_next_batch()
+
+    def add_single_video(self, video_url, audio_only, download_video):
+        self.audio_only = audio_only
+        self.download_video = download_video
+        self.current_item = 0
+        self.skipped_items = 0
+
+        url = video_url
+        fmt = "Música - MP3" if self.audio_only else "Vídeo - MP4"
+        resolution = self.resolution_combo.currentText() if self.download_video else "best"
+        item = DownloadItem(url, fmt, resolution)
+        self.downloads[item.id] = item
+
+        row = self.table.rowCount()
+        self.table.insertRow(row)
+        self.table.setItem(row, 0, QTableWidgetItem(item.title))
+        self.table.setItem(row, 1, QTableWidgetItem(item.format_choice))
+        self.table.setItem(row, 2, QTableWidgetItem(item.resolution_choice))
+        progress_bar = QProgressBar()
+        progress_bar.setRange(0, 100)
+        progress_bar.setValue(0)
+        progress_bar.setFormat("%p%")
+        progress_bar.setStyleSheet("QProgressBar::chunk { background-color: #41e535; }")
+        self.table.setCellWidget(row, 3, progress_bar)
+        self.table.setItem(row, 4, QTableWidgetItem(item.status))
+        self.table.setItem(row, 5, QTableWidgetItem(item.added_at))
+        btn_open = QPushButton(self.i18n.get("open"))
+        btn_open.setEnabled(False)
+        btn_open.clicked.connect(lambda _, id=item.id: self.open_file(id))
+        self.table.setCellWidget(row, 6, btn_open)
+        self.table.setRowHeight(row, 40)
+
+        thread = DownloadThread(item, self.config.download_path)
+        thread.progress_signal.connect(self.update_download)
+        thread.finished_signal.connect(self.download_finished)
+        self.threads[item.id] = thread
+        thread.start()
+
+    def download_next_batch(self):
+        batch_size = 5
+        start_index = self.current_batch * batch_size
+        end_index = start_index + batch_size
+        batch_videos = self.playlist_videos[start_index:end_index]
+
+        for video in batch_videos:
+            if 'url' not in video:
+                self.skipped_items += 1
+                continue  # Pula vídeos indisponíveis
+
+            url = video['url']
+            fmt = "Música - MP3" if self.audio_only else "Vídeo - MP4"
+            resolution = self.resolution_combo.currentText() if self.download_video else "best"
+            item = DownloadItem(url, fmt, resolution)
+            self.downloads[item.id] = item
+
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(item.title))
+            self.table.setItem(row, 1, QTableWidgetItem(item.format_choice))
+            self.table.setItem(row, 2, QTableWidgetItem(item.resolution_choice))
+            progress_bar = QProgressBar()
+            progress_bar.setRange(0, 100)
+            progress_bar.setValue(0)
+            progress_bar.setFormat("%p%")
+            progress_bar.setStyleSheet("QProgressBar::chunk { background-color: #41e535; }")
+            self.table.setCellWidget(row, 3, progress_bar)
+            self.table.setItem(row, 4, QTableWidgetItem(item.status))
+            self.table.setItem(row, 5, QTableWidgetItem(item.added_at))
+            btn_open = QPushButton(self.i18n.get("open"))
+            btn_open.setEnabled(False)
+            btn_open.clicked.connect(lambda _, id=item.id: self.open_file(id))
+            self.table.setCellWidget(row, 6, btn_open)
+            self.table.setRowHeight(row, 40)
+
+            thread = DownloadThread(item, self.config.download_path)
+            thread.progress_signal.connect(self.update_download)
+            thread.finished_signal.connect(self.download_finished)
+            self.threads[item.id] = thread
+            thread.start()
+
+        self.current_batch += 1
 
     @pyqtSlot(str, float, str)
     def update_download(self, download_id: str, progress: float, status: str):
@@ -478,23 +612,80 @@ class DownloadApp(QMainWindow):
     @pyqtSlot(str)
     def download_finished(self, download_id: str):
         logging.info(f"Download finalizado: {download_id}")
+        self.current_item += 1
+
+        item = self.downloads.get(download_id)
+        if item and os.path.exists(item.file_path):
+            current_time = time.time()
+            os.utime(item.file_path, (current_time, current_time))
+            logging.info(f"Timestamps atualizados para o arquivo: {item.file_path}")
+
+        # Verifica se todos os downloads do lote atual foram concluídos
+        if hasattr(self, 'playlist_videos') and all(item.status == self.i18n.get("status_completed") for item in self.downloads.values() if item.id in self.threads):
+            if self.current_batch * 5 < len(self.playlist_videos):
+                self.download_next_batch()
+            else:
+                self.check_all_downloads_finished()
+        else:
+            self.check_all_downloads_finished()
+
+        if download_id in self.threads:
+            del self.threads[download_id]
+        self.process_download_queue()
+
+    def check_all_downloads_finished(self):
+        if all(item.status == self.i18n.get("status_completed") for item in self.downloads.values()):
+            if self.config.get("show_completion_message", True):
+                QMessageBox.information(self, self.i18n.get("information"), self.i18n.get("all_downloads_completed"))
+
+    def process_download_queue(self):
+        while len(self.threads) < 5 and self.download_queue:
+            item = self.download_queue.popleft()
+            self.downloads[item.id] = item
+
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(item.title))
+            self.table.setItem(row, 1, QTableWidgetItem(item.format_choice))
+            self.table.setItem(row, 2, QTableWidgetItem(item.resolution_choice))
+            progress_bar = QProgressBar()
+            progress_bar.setRange(0, 100)
+            progress_bar.setValue(0)
+            progress_bar.setFormat("%p%")
+            progress_bar.setStyleSheet("QProgressBar::chunk { background-color: #41e535; }")
+            self.table.setCellWidget(row, 3, progress_bar)
+            self.table.setItem(row, 4, QTableWidgetItem(item.status))
+            self.table.setItem(row, 5, QTableWidgetItem(item.added_at))
+            btn_open = QPushButton(self.i18n.get("open"))
+            btn_open.setEnabled(False)
+            btn_open.clicked.connect(lambda _, id=item.id: self.open_file(id))
+            self.table.setCellWidget(row, 6, btn_open)
+            self.table.setRowHeight(row, 40)
+
+            thread = DownloadThread(item, self.config.download_path)
+            thread.progress_signal.connect(self.update_download)
+            thread.finished_signal.connect(self.download_finished)
+            self.threads[item.id] = thread
+            thread.start()
+
+        logging.info(f"Downloads da playlist iniciados: {len(self.threads)} vídeos")
 
     def open_file(self, download_id: str):
         item = self.downloads.get(download_id)
-        if item and item.status == "Concluído" and os.path.exists(item.file_path):
+        if item and item.status == self.i18n.get("status_completed") and os.path.exists(item.file_path):
             try:
                 os.startfile(item.file_path)
             except Exception as e:
-                QMessageBox.warning(self, "Erro", f"Não foi possível abrir o arquivo:\n{e}")
+                QMessageBox.warning(self, self.i18n.get("error"), f"{self.i18n.get('error_open_file')}\n{e}")
         else:
-            QMessageBox.information(self, "Abrir", "Arquivo não disponível.")
+            QMessageBox.information(self, self.i18n.get("information"), self.i18n.get("file_not_available"))
 
     def clear_completed(self):
-        remove_ids = [id for id, item in self.downloads.items() if item.status in ("Concluído", "Erro", "Cancelado") or item.status.startswith("Erro")]
+        remove_ids = [id for id, item in self.downloads.items() if item.status in (self.i18n.get("status_completed"), self.i18n.get("status_error"), self.i18n.get("status_cancelled")) or item.status.startswith(self.i18n.get("status_error"))]
         rows_to_remove = []
         for row in range(self.table.rowCount()):
             status_item = self.table.item(row, 4)
-            if status_item and status_item.text() in ("Concluído", "Erro", "Cancelado"):
+            if status_item and status_item.text() in (self.i18n.get("status_completed"), self.i18n.get("status_error"), self.i18n.get("status_cancelled")):
                 rows_to_remove.append(row)
         for row in sorted(rows_to_remove, reverse=True):
             self.table.removeRow(row)
@@ -506,11 +697,7 @@ class DownloadApp(QMainWindow):
     def remove_selected(self):
         selected = self.table.selectedItems()
         if not selected:
-            QMessageBox.information(
-                self,
-                self.i18n.get("information"),
-                self.i18n.get("select_to_remove")
-            )
+            QMessageBox.information(self, self.i18n.get("information"), self.i18n.get("select_to_remove"))
             return
         row = selected[0].row()
         added = self.table.item(row, 5).text()
@@ -527,17 +714,13 @@ class DownloadApp(QMainWindow):
     def retry_download(self):
         selected = self.table.selectedItems()
         if not selected:
-            QMessageBox.information(
-                self,
-                self.i18n.get("information"),
-                self.i18n.get("select_to_retry")
-            )
+            QMessageBox.information(self, self.i18n.get("information"), self.i18n.get("select_to_retry"))
             return
         row = selected[0].row()
         added = self.table.item(row, 5).text()
         for id, item in self.downloads.items():
             if item.added_at == added:
-                if item.status.startswith("Erro"):
+                if item.status.startswith(self.i18n.get("status_error")):
                     item.status = self.i18n.get("status_queued")
                     item.progress = 0.0
                     item.cancelled = False
@@ -548,21 +731,13 @@ class DownloadApp(QMainWindow):
                     thread.start()
                     logging.info(f"Reiniciando download: {item.url}")
                 else:
-                    QMessageBox.information(
-                        self,
-                        self.i18n.get("information"),
-                        self.i18n.get("error_retry")
-                    )
+                    QMessageBox.information(self, self.i18n.get("information"), self.i18n.get("error_retry"))
                 break
 
     def cancel_download(self):
         selected = self.table.selectedItems()
         if not selected:
-            QMessageBox.information(
-                self,
-                self.i18n.get("information"),
-                self.i18n.get("select_to_cancel")
-            )
+            QMessageBox.information(self, self.i18n.get("information"), self.i18n.get("select_to_cancel"))
             return
         row = selected[0].row()
         added = self.table.item(row, 5).text()
@@ -572,4 +747,11 @@ class DownloadApp(QMainWindow):
                 item.status = self.i18n.get("status_cancelled")
                 self.update_download(item.id, item.progress, item.status)
                 logging.info(f"Download cancelado: {item.url}")
-                break 
+                break
+
+    def closeEvent(self, event):
+        if self.threads:
+            QMessageBox.warning(self, self.i18n.get("warning"), self.i18n.get("downloads_in_progress"))
+            event.ignore()
+        else:
+            event.accept()

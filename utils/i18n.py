@@ -56,7 +56,19 @@ class I18n:
             "select_to_remove": "Nenhum item selecionado para remover.",
             "video_mp4": "Vídeo - MP4",
             "music_mp3": "Música - MP3",
-            "best_quality": "Melhor Qualidade"
+            "best_quality": "Melhor Qualidade",
+            "playlist_download": "Download de Playlist",
+            "download_audio_only": "Baixar apenas áudio",
+            "download_video": "Baixar vídeo",
+            "cancel": "Cancelar",
+            "download_all": "Baixar Todos",
+            "download_selected": "Baixar Apenas Selecionados",
+            "downloading_items": "Baixando {0} de {1} itens da playlist",
+            "skipping_unavailable_items": "Pulando {0} itens não disponíveis",
+            "downloads_in_progress": "Existem downloads em andamento. Por favor, aguarde a conclusão.",
+            "complete": "Concluir",
+            "all_downloads_completed": "Todos os downloads foram concluídos.",
+            "show_completion_message": "Mostrar mensagem de conclusão"
         },
         "en_US": {
             "app_title": "Video Downloader 3000 by Reginaldo Horse",
@@ -112,7 +124,19 @@ class I18n:
             "select_to_remove": "No item selected to remove.",
             "video_mp4": "Video - MP4",
             "music_mp3": "Music - MP3",
-            "best_quality": "Best Quality"
+            "best_quality": "Best Quality",
+            "playlist_download": "Playlist Download",
+            "download_audio_only": "Download audio only",
+            "download_video": "Download video",
+            "cancel": "Cancel",
+            "download_all": "Download All",
+            "download_selected": "Download Selected",
+            "downloading_items": "Downloading {0} of {1} items from the playlist",
+            "skipping_unavailable_items": "Skipping {0} unavailable items",
+            "downloads_in_progress": "There are downloads in progress. Please wait for them to complete.",
+            "complete": "Complete",
+            "all_downloads_completed": "All downloads have been completed.",
+            "show_completion_message": "Show completion message"
         }
     }
 
@@ -134,4 +158,4 @@ class I18n:
         return {
             "pt_BR": "Português (Brasil)",
             "en_US": "English (US)"
-        } 
+        }
