@@ -4,6 +4,7 @@ class I18n:
     TRANSLATIONS = {
         "pt_BR": {
             "app_title": "Baixa Videos 3000 by Reginaldo Horse",
+            "app_title_downloads": "Baixa Videos 3000",
             "download_folder": "Pasta de Download",
             "change_folder": "Alterar Pasta",
             "theme": "Tema",

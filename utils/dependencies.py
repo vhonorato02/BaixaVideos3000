@@ -87,4 +87,20 @@ def check_ffmpeg():
         subprocess.run(['ffmpeg', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return True
     except FileNotFoundError:
-        return False 
+        return False
+
+class YtDlpUpdater(QThread):
+    progress_signal = pyqtSignal(str)  # Para enviar mensagens de progresso
+    finished_signal = pyqtSignal(bool)  # True se atualizou com sucesso, False se falhou
+
+    def run(self):
+        try:
+            self.progress_signal.emit("Atualizando yt-dlp...")
+            subprocess.run(["pip", "install", "--upgrade", "yt-dlp"], check=True)
+            self.progress_signal.emit("yt-dlp atualizado com sucesso!")
+            self.finished_signal.emit(True)
+        except subprocess.CalledProcessError as e:
+            error_msg = f"Erro ao atualizar yt-dlp: {str(e)}"
+            logging.error(error_msg)
+            self.progress_signal.emit(error_msg)
+            self.finished_signal.emit(False)

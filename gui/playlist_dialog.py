@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QCheckBox, QTableWidget, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QRadioButton, QTableWidget, QTableWidgetItem, QHeaderView, QButtonGroup, QCheckBox
 from PyQt5.QtCore import Qt
 
 class PlaylistDialog(QDialog):
@@ -14,12 +14,16 @@ class PlaylistDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        self.audio_only_checkbox = QCheckBox(self.i18n.get("download_audio_only"))
-        self.audio_only_checkbox.setChecked(True)
-        layout.addWidget(self.audio_only_checkbox)
+        self.audio_only_radio = QRadioButton(self.i18n.get("download_audio_only"))
+        self.audio_only_radio.setChecked(True)
+        self.video_radio = QRadioButton(self.i18n.get("download_video"))
 
-        self.video_checkbox = QCheckBox(self.i18n.get("download_video"))
-        layout.addWidget(self.video_checkbox)
+        self.button_group = QButtonGroup()
+        self.button_group.addButton(self.audio_only_radio)
+        self.button_group.addButton(self.video_radio)
+
+        layout.addWidget(self.audio_only_radio)
+        layout.addWidget(self.video_radio)
 
         self.table = QTableWidget(len(self.videos), 2)
         self.table.setHorizontalHeaderLabels([self.i18n.get("title"), self.i18n.get("select")])
@@ -33,7 +37,7 @@ class PlaylistDialog(QDialog):
 
             self.table.setItem(row, 0, QTableWidgetItem(video['title']))
             checkbox = QCheckBox()
-            checkbox.setChecked(True)
+            checkbox.setChecked(False) 
             self.table.setCellWidget(row, 1, checkbox)
 
         layout.addWidget(self.table)
@@ -69,4 +73,4 @@ class PlaylistDialog(QDialog):
                 if 'url' in self.videos[row]:
                     selected_videos.append(self.videos[row])
         # Emitir sinal ou chamar função para iniciar o download dos vídeos selecionados
-        self.parent().start_playlist_download(selected_videos, self.audio_only_checkbox.isChecked(), self.video_checkbox.isChecked())
+        self.parent().start_playlist_download(selected_videos, self.audio_only_radio.isChecked(), self.video_radio.isChecked())

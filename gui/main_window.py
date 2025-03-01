@@ -106,7 +106,7 @@ class DownloadApp(QMainWindow):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        header = QLabel(self.i18n.get("app_title"))
+        header = QLabel(self.i18n.get("app_title_downloads"))
         header.setFont(QFont("Segoe UI", 20, QFont.Bold))
         header.setAlignment(Qt.AlignCenter)
         layout.addWidget(header)
