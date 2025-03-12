@@ -6,7 +6,7 @@ from utils.dependencies import YtDlpUpdater
 def main():
     app = QApplication(sys.argv)
 
-    # Atualiza o yt-dlp
+    # Atualiza o yt-dlpasdasdasdasdasd
     updater = YtDlpUpdater()
     updater.progress_signal.connect(lambda msg: print(msg))  # Ou conecte a um sinal de progresso na GUI
     updater.finished_signal.connect(lambda success: print("Atualização concluída" if success else "Atualização falhou"))
